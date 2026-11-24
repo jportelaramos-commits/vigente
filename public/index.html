@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vigente — prazos de contratos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@600;800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: direto, calmo, de quem cuida de prazo de empresa
+   IDEA: a régua de prazos — uma agenda carimbada onde cada contrato é uma faixa até o vencimento
+   PICTURE: régua grande com faixas, janela de aviso marcada em vermelhão, hoje como linha
+   COLOUR+TYPE: tinta de carimbo #2b2c9e dominante, lilás #ecebfb apoio, vermelhão #ef4f2b alerta; Schibsted Grotesk + Public Sans
+   LAYOUT: título largo em cima, régua em faixa de tinta a toda largura, depois passos, preços, dúvidas */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#101129);--ink:light-dark(#17183d,#ecebfb);--soft:light-dark(#5b5c80,#a9aad0);
+--stamp:light-dark(#2b2c9e,#1c1d63);--lilac:light-dark(#ecebfb,#1a1b42);--line:light-dark(#d9d8f0,#2c2d5e);
+--red:#ef4f2b;--ok:light-dark(#1d7f55,#5fd3a0);--card:light-dark(#ffffff,#15163a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Schibsted Grotesk",system-ui,sans-serif;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(36px,6vw,64px);font-weight:800;letter-spacing:-.02em;max-width:16ch}
+h2{font-size:clamp(28px,3.6vw,40px);font-weight:800;letter-spacing:-.01em}
+h3{font-size:20px;font-weight:600}
+p{margin:.5em 0;max-width:62ch}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}.wrap{max-width:1240px;margin:0 auto}
+a{color:inherit}
+button,.btn{font:600 16px "Public Sans",sans-serif;min-height:44px;padding:0 20px;border-radius:10px;border:2px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.ghost{background:transparent;color:var(--ink)}
+.small{min-height:36px;padding:0 12px;font-size:14px}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+input,select,textarea{font:16px "Public Sans",sans-serif;width:100%;min-height:44px;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+nav{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:16px max(5vw,16px);border-bottom:1px solid var(--line)}
+.logo{font:800 22px "Schibsted Grotesk",sans-serif;display:flex;align-items:center;gap:8px;text-decoration:none;margin-inline-end:auto}
+.logo i{width:22px;height:22px;border-radius:50%;border:4px double var(--red);display:inline-block}
+nav a.l{text-decoration:none;color:var(--soft);font-weight:500}
+.lead{font-size:19px;color:var(--soft);margin:18px 0 26px}
+/* régua */
+.ruler{background:var(--stamp);color:#fff;border-radius:18px;padding:clamp(18px,3vw,32px)}
+.rh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:14px}
+.rh b{font:800 22px "Schibsted Grotesk",sans-serif}.rh span{color:#c9c9f4;font-size:14px}
+.scale{display:grid;grid-template-columns:minmax(110px,28%) 1fr;gap:0 14px;font-size:13px;color:#c9c9f4}
+.ticks{position:relative;height:22px;border-bottom:1px solid #5859c4}
+.ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.row{display:grid;grid-template-columns:minmax(110px,28%) 1fr;gap:14px;align-items:center;padding:7px 0;border-bottom:1px solid #3d3eb3;cursor:pointer;background:none;border-inline:0;border-top:0;color:#fff;font:inherit;width:100%;text-align:start;min-height:48px;border-radius:0}
+.row:hover .nm{text-decoration:underline}
+.nm{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm small{display:block;font-weight:400;color:#c9c9f4;font-size:13px}
+.track{position:relative;height:26px}
+.bar{position:absolute;top:5px;height:16px;border-radius:4px;background:#8d8ef0;left:0}
+.win{position:absolute;top:5px;height:16px;background:repeating-linear-gradient(135deg,var(--red) 0 6px,#ff8a6e 6px 9px);border-radius:0 4px 4px 0}
+.end{position:absolute;top:0;font-size:12px;white-space:nowrap;transform:translateX(6px);line-height:26px;font-weight:600}
+.today{position:absolute;top:-4px;bottom:-4px;left:0;width:2px;background:#fff}
+.over .bar{background:var(--red);width:6px!important}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:#c9c9f4;margin-top:14px}
+.legend i{display:inline-block;width:18px;height:10px;border-radius:2px;vertical-align:middle;margin-inline-end:6px}
+@media(prefers-reduced-motion:no-preference){.bar,.win{animation:grow .9s cubic-bezier(.2,.7,.2,1) both}@keyframes grow{from{clip-path:inset(0 100% 0 0)}}}
+/* seções */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:28px;margin-top:28px;counter-reset:s}
+.steps div{border-top:3px solid var(--ink);padding-top:14px}
+.steps h3::before{counter-increment:s;content:counter(s) ". ";color:var(--red)}
+.lilac{background:var(--lilac)}
+.toggle{display:inline-flex;border:2px solid var(--ink);border-radius:10px;overflow:hidden;margin:18px 0 6px}
+.toggle button{border:0;border-radius:0;background:transparent;color:var(--ink)}.toggle button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px;margin-top:18px}
+.plan{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:6px}
+.plan.hi{border:2.5px solid var(--stamp);box-shadow:8px 8px 0 var(--stamp)}
+.price{font:800 40px "Schibsted Grotesk",sans-serif;white-space:nowrap}.price small{font:500 15px "Public Sans";color:var(--soft)}
+.plan ul{padding-inline-start:18px;margin:8px 0 16px;flex:1}.plan li{margin:4px 0}
+details{border-bottom:1px solid var(--line);padding:14px 0}summary{font-weight:600;cursor:pointer;min-height:28px}
+footer{padding:28px max(5vw,16px);color:var(--soft);font-size:14px;display:flex;flex-wrap:wrap;gap:8px 24px;border-top:1px solid var(--line)}
+/* app */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px;margin:20px 0}
+.kpi{border:1.5px solid var(--line);border-radius:12px;padding:16px;background:var(--card)}
+.kpi b{display:block;font:800 32px "Schibsted Grotesk",sans-serif}.kpi span{color:var(--soft);font-size:14px}
+.kpi.alert b{color:var(--red)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:24px 0 10px}.tools input{max-width:280px}
+table{width:100%;border-collapse:collapse;font-size:15px}th,td{text-align:start;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--soft);font-weight:600}td.num{text-align:end;white-space:nowrap}
+.tag{font-size:13px;font-weight:600;white-space:nowrap;padding:2px 8px;border-radius:99px;background:var(--lilac)}
+.tag.r{background:var(--red);color:#fff}.tag.g{color:var(--ok)}
+.auth{max-width:420px;margin:0 auto}
+.err{color:var(--red);font-weight:600;min-height:1.4em;margin:8px 0}
+.note{font-size:13px;color:var(--soft)}
+dialog{border:0;border-radius:16px;padding:0;width:min(560px,94vw);background:var(--bg);color:var(--ink)}
+dialog::backdrop{background:#0a0b2acc}
+dialog form{padding:24px}.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:0 14px}
+.chk{display:flex;gap:10px;align-items:center;font-weight:500;margin-top:16px}.chk input{width:22px;min-height:22px}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;justify-content:flex-end}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+[hidden]{display:none!important}
+pre,.scroll{overflow-x:auto}
+@media(max-width:600px){.scale,.row{grid-template-columns:96px 1fr}.end{font-size:11px}table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;color:var(--soft)}.stack td:empty{display:none}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="#inicio"><i></i>Vigente</a>
+  <a class="l" href="#como">Como funciona</a><a class="l" href="#precos">Preços</a><a class="l" href="#duvidas">Dúvidas</a>
+  <a class="btn small" href="#app" id="navApp">Entrar</a>
+</nav>
+
+<main id="site">
+  <section class="band" id="inicio"><div class="wrap">
+    <h1>Nenhum contrato da sua empresa vence sem você saber.</h1>
+    <p class="lead">Aluguel, software, fornecedores, seguros. O Vigente guarda todos num lugar só e avisa por e-mail antes do vencimento ou da renovação automática, com tempo para cancelar ou renegociar.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:32px"><a class="btn" href="#app" data-go="register">Começar grátis</a><a class="btn ghost" href="#precos">Ver preços</a></div>
+    <div class="ruler" id="heroRuler"></div>
+  </div></section>
+
+  <section class="band lilac" id="como"><div class="wrap">
+    <h2>Três minutos para nunca mais perder um prazo</h2>
+    <div class="steps">
+      <div><h3>Cadastre o contrato</h3><p>Nome, com quem, valor e data de término. Marque se ele renova sozinho.</p></div>
+      <div><h3>Escolha o aviso</h3><p>Defina quantos dias antes quer ser avisado: 30, 60, 90. Cada contrato tem o seu.</p></div>
+      <div><h3>Decida com calma</h3><p>Você recebe o e-mail dentro da janela de aviso e repete a cada 7 dias até o vencimento.</p></div>
+    </div>
+  </div></section>
+
+  <section class="band" id="precos"><div class="wrap">
+    <h2>Preços simples, cancele quando quiser</h2>
+    <div class="toggle" role="group" aria-label="Período de cobrança"><button type="button" aria-pressed="true" data-cycle="m">Mensal</button><button type="button" aria-pressed="false" data-cycle="a">Anual, 2 meses grátis</button></div>
+    <div class="plans" id="plans"></div>
+  </div></section>
+
+  <section class="band lilac" id="duvidas"><div class="wrap" style="max-width:820px">
+    <h2>Dúvidas frequentes</h2>
+    <details><summary>Preciso enviar o arquivo do contrato?</summary><p>Não. Você cadastra só os dados que importam para o prazo. O arquivo continua com você.</p></details>
+    <details><summary>Quem recebe os avisos?</summary><p>O e-mail da conta. No plano Business você adiciona outras pessoas da equipe.</p></details>
+    <details><summary>Posso mudar de plano depois?</summary><p>Sim, a qualquer momento. A cobrança é feita por cartão pelo Stripe e você cancela direto no painel.</p></details>
+    <details><summary>E meus dados?</summary><p>Ficam em servidor próprio, com senha criptografada, e seguem a LGPD e o GDPR. Você pode apagar a conta e tudo some.</p></details>
+  </div></section>
+</main>
+
+<main id="app" hidden class="band"><div class="wrap">
+  <section id="authBox" class="auth">
+    <h2 id="authTitle">Entrar no Vigente</h2>
+    <form id="authForm" novalidate>
+      <div id="regFields" hidden><label for="aName">Seu nome</label><input id="aName" autocomplete="name"><label for="aCo">Empresa</label><input id="aCo" autocomplete="organization"></div>
+      <label for="aEmail">E-mail</label><input id="aEmail" type="email" autocomplete="email" required>
+      <label for="aPass">Senha</label><input id="aPass" type="password" autocomplete="current-password" required minlength="8">
+      <p class="err" id="authErr" role="alert"></p>
+      <button style="width:100%;justify-content:center" id="authBtn">Entrar</button>
+    </form>
+    <p style="text-align:center"><a href="#app" id="authSwap">Ainda não tem conta? Crie grátis</a></p>
+    <p class="note" id="demoNote" hidden>Prévia: os dados ficam só neste navegador. Use qualquer e-mail e senha com 8 caracteres.</p>
+  </section>
+
+  <section id="dash" hidden>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
+      <div><h2 id="hello">Seus contratos</h2><p class="note" id="planLine"></p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button id="addBtn">Adicionar contrato</button><button class="ghost" id="outBtn">Sair</button></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="ruler" id="appRuler"></div>
+    <div class="tools"><input id="q" type="search" placeholder="Buscar por nome ou parte" aria-label="Buscar contratos"><select id="f" aria-label="Filtrar" style="max-width:220px"><option value="">Todos</option><option value="aviso">Na janela de aviso</option><option value="vencido">Vencidos</option><option value="auto">Renovam sozinhos</option></select></div>
+    <table class="stack"><thead><tr><th>Contrato</th><th>Com quem</th><th>Termina</th><th>Situação</th><th style="text-align:end">Valor/mês</th><th></th></tr></thead><tbody id="tb"></tbody></table>
+    <p class="note" id="empty" hidden>Nenhum contrato aqui ainda. Adicione o primeiro e veja ele aparecer na régua.</p>
+  </section>
+</div></main>
+
+<dialog id="dlg"><form id="cForm" method="dialog" novalidate>
+  <h3 id="dlgTitle">Novo contrato</h3>
+  <label for="cTitle">Nome do contrato</label><input id="cTitle" required placeholder="Ex.: Aluguel da loja">
+  <div class="g2"><div><label for="cParty">Com quem</label><input id="cParty"></div><div><label for="cCat">Categoria</label><select id="cCat"><option>Fornecedor</option><option>Software</option><option>Imóvel</option><option>Seguro</option><option>Cliente</option><option>Outro</option></select></div>
+  <div><label for="cEnd">Data de término</label><input id="cEnd" type="date" required></div><div><label for="cVal">Valor mensal (R$)</label><input id="cVal" type="number" min="0" step="0.01" inputmode="decimal"></div>
+  <div><label for="cNotice">Avisar quantos dias antes</label><select id="cNotice"><option value="15">15 dias</option><option value="30" selected>30 dias</option><option value="60">60 dias</option><option value="90">90 dias</option></select></div></div>
+  <label class="chk"><input type="checkbox" id="cAuto">Renova automaticamente se ninguém avisar</label>
+  <label for="cNotes">Observações</label><textarea id="cNotes" rows="2"></textarea>
+  <p class="err" id="cErr" role="alert"></p>
+  <div class="acts"><button type="button" class="ghost" id="delBtn" hidden>Excluir</button><button type="button" class="ghost" id="cancelBtn">Cancelar</button><button id="saveBtn">Salvar contrato</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<footer><span>© 2026 Vigente, um produto Axle Group</span><a href="#duvidas">Privacidade e LGPD</a><a href="#duvidas">Termos de uso</a></footer>
+
+<script>
+{
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const DAY = 864e5, today = new Date(new Date().toDateString());
+const iso = (d) => new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+const plus = (n) => iso(new Date(today.getTime() + n * DAY));
+const left = (c) => Math.round((new Date(c.end_date + 'T00:00') - today) / DAY);
+const brl = (n) => Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const fmt = (s) => new Date(s + 'T00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+const PLANS = [
+  { id: 'starter', name: 'Starter', m: 0, desc: 'Para começar a organizar', items: ['Até 10 contratos', 'Avisos por e-mail', 'Régua de prazos'] },
+  { id: 'pro', name: 'Pro', m: 49, hi: true, desc: 'Para pequenas empresas', items: ['Até 200 contratos', 'Aviso personalizado por contrato', 'Filtros e busca', 'Suporte por e-mail'] },
+  { id: 'business', name: 'Business', m: 149, desc: 'Para equipes e escritórios', items: ['Contratos ilimitados', 'Vários usuários', 'Relatório mensal', 'Suporte prioritário'] },
+];
+const SAMPLE = [
+  ['Aluguel do galpão', 'Imobiliária Planalto', 'Imóvel', 4200, 18, 1, 60],
+  ['Sistema de gestão (ERP)', 'Nuvem Contábil', 'Software', 890, 41, 1, 30],
+  ['Seguro da frota', 'Porto Sul Seguros', 'Seguro', 1350, 74, 0, 30],
+  ['Internet fibra', 'ConectaRS', 'Fornecedor', 320, 9, 1, 30],
+  ['Manutenção do ar', 'Clima Frio', 'Fornecedor', 260, 112, 0, 15],
+  ['Licença de design', 'Studio Pro', 'Software', 140, -3, 0, 30],
+].map(([title, party, category, value, d, auto_renew, notice_days], i) => ({ id: i + 1, title, party, category, value, end_date: plus(d), auto_renew, notice_days, notes: '' }));
+
+// ---------- API (servidor real ou modo prévia) ----------
+let DEMO = false, token = null, user = null, list = [];
+try { token = localStorage.getItem('vg_token'); } catch {}
+const store = { get() { try { return JSON.parse(localStorage.getItem('vg_demo')) } catch { return null } }, set(v) { try { localStorage.setItem('vg_demo', JSON.stringify(v)) } catch {} } };
+let demo = store.get() || { user: null, contracts: SAMPLE.map((c) => ({ ...c })), seq: 100 };
+async function api(method, path, body) {
+  if (DEMO) return demoApi(method, path, body);
+  const r = await fetch(path, { method, headers: { 'content-type': 'application/json', ...(token && { authorization: 'Bearer ' + token }) }, body: body && JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(j.error || 'Algo deu errado. Tente de novo.'), { status: r.status });
+  return j;
+}
+function demoApi(method, path, b) {
+  const save = () => store.set(demo), id = Number(path.split('/')[3]);
+  if (path.startsWith('/api/auth')) {
+    if (!b.email || (b.password || '').length < 8) throw new Error('Use um e-mail e uma senha com pelo menos 8 caracteres.');
+    demo.user = { name: b.name || demo.user?.name || b.email.split('@')[0], email: b.email, company: b.company, plan: demo.user?.plan || 'starter' }; save();
+    return { token: 'demo', user: demo.user };
+  }
+  if (path === '/api/me') { if (!demo.user) throw Object.assign(new Error(''), { status: 401 }); return demo.user; }
+  if (path === '/api/billing/checkout') { demo.user.plan = b.plan; save(); return { demo: true }; }
+  if (method === 'GET') return demo.contracts.slice().sort((a, b) => a.end_date.localeCompare(b.end_date));
+  if (method === 'DELETE') { demo.contracts = demo.contracts.filter((c) => c.id !== id); save(); return {}; }
+  if (!b.title) throw new Error('Dê um nome ao contrato.');
+  if (!b.end_date) throw new Error('Informe a data de término.');
+  const lim = { starter: 10, pro: 200, business: Infinity }[demo.user.plan];
+  if (method === 'POST') { if (demo.contracts.length >= lim) throw new Error(`Seu plano permite ${lim} contratos. Faça upgrade para adicionar mais.`); const c = { ...b, id: ++demo.seq }; demo.contracts.push(c); save(); return c; }
+  demo.contracts = demo.contracts.map((c) => c.id === id ? { ...b, id } : c); save(); return b;
+}
+
+// ---------- Régua de prazos ----------
+function status(c) {
+  const d = left(c);
+  if (d < 0) return { k: 'vencido', t: `Venceu há ${-d} d`, cls: 'r' };
+  if (d <= c.notice_days) return { k: 'aviso', t: c.auto_renew ? `Renova em ${d} d` : `Vence em ${d} d`, cls: 'r' };
+  return { k: 'ok', t: `Em dia, ${d} d`, cls: 'g' };
+}
+function ruler(el, items, title, clickable) {
+  const span = 120, pct = (d) => Math.max(0, Math.min(100, d / span * 100));
+  const rows = items.slice().sort((a, b) => left(a) - left(b)).slice(0, 8);
+  const att = items.filter((c) => status(c).k !== 'ok').length;
+  el.innerHTML = `<div class="rh"><b>${esc(title)}</b><span>${att ? `${att} ${att > 1 ? 'pedem' : 'pede'} decisão agora` : 'Tudo em dia'} · próximos 120 dias</span></div>
+  <div class="scale"><span></span><div class="ticks">${(innerWidth < 600 ? [0, 60, 120] : [0, 30, 60, 90, 120]).map((d) => `<span style="left:${pct(d)}%${d === 0 ? ';transform:none' : d === 120 ? ';transform:translateX(-100%)' : ''}">${d ? fmt(plus(d)) : 'Hoje'}</span>`).join('')}</div></div>
+  ${rows.map((c) => { const d = left(c), s = status(c), w = pct(d), ws = pct(Math.max(0, d - c.notice_days));
+    return `<button type="button" class="row ${d < 0 ? 'over' : ''}" data-id="${esc(c.id)}" ${clickable ? '' : 'tabindex="-1"'} aria-label="${esc(c.title)}: ${esc(s.t)}">
+    <span class="nm">${esc(c.title)}<small>${esc(c.party || c.category)}</small></span>
+    <span class="track"><span class="today"></span>${d < 0 ? '<span class="bar"></span>' : `<span class="bar" style="width:${ws}%"></span>${d > 0 ? `<span class="win" style="left:${ws}%;width:${w - ws}%"></span>` : ''}`}
+    <span class="end" style="left:${d < 0 ? 0 : w > 80 ? 'auto' : w + '%'};${w > 80 ? 'right:0;transform:none;' : ''}${d < 0 ? 'transform:translateX(12px)' : ''}">${esc(s.t)}${c.auto_renew ? ' ↻' : ''}</span></span></button>`; }).join('') || '<p>Adicione contratos para vê-los aqui.</p>'}
+  <div class="legend"><span><i style="background:#8d8ef0"></i>Tempo tranquilo</span><span><i style="background:var(--red)"></i>Janela de aviso</span><span>↻ renova sozinho</span></div>`;
+}
+
+// ---------- Site ----------
+let cycle = 'm';
+function renderPlans() {
+  $('#plans').innerHTML = PLANS.map((p) => { const v = cycle === 'm' ? p.m : p.m * 10;
+    return `<div class="plan ${p.hi ? 'hi' : ''}"><h3>${p.name}</h3><span class="note">${p.desc}</span>
+    <div class="price">${v ? brl(v).replace(',00', '') : 'Grátis'}${v ? `<small> /${cycle === 'm' ? 'mês' : 'ano'}</small>` : ''}</div>
+    <ul>${p.items.map((i) => `<li>${i}</li>`).join('')}</ul><button class="${p.hi ? '' : 'ghost'}" data-plan="${p.id}">${p.m ? 'Assinar ' + p.name : 'Começar grátis'}</button></div>`; }).join('');
+}
+document.addEventListener('click', (e) => {
+  const cy = e.target.closest('[data-cycle]');
+  if (cy) { cycle = cy.dataset.cycle; document.querySelectorAll('[data-cycle]').forEach((b) => b.setAttribute('aria-pressed', b === cy)); renderPlans(); }
+  const pl = e.target.closest('[data-plan]');
+  if (pl) choosePlan(pl.dataset.plan);
+  const go = e.target.closest('[data-go]'); if (go) mode = go.dataset.go;
+  const row = e.target.closest('#appRuler .row,[data-edit]'); if (row) openDlg(list.find((c) => String(c.id) === (row.dataset.id || row.dataset.edit)));
+  const hr = e.target.closest('#heroRuler .row'); if (hr) { mode = 'register'; location.hash = 'app'; }
+});
+async function choosePlan(id) {
+  if (!user) { mode = 'register'; pending = id; location.hash = 'app'; return; }
+  if (id === 'starter') return toast('Você já pode usar o Starter.');
+  try { const r = await api('POST', '/api/billing/checkout', { plan: id }); if (r.url) location.href = r.url; else { user.plan = id; location.hash = 'app'; renderDash(); toast(`Plano ${PLANS.find((p) => p.id === id).name} ativado`); } }
+  catch (e) { toast(e.message); }
+}
+
+// ---------- Painel ----------
+let mode = 'login', pending = null, editing = null;
+function renderAuth() {
+  const reg = mode === 'register';
+  $('#authTitle').textContent = reg ? 'Crie sua conta grátis' : 'Entrar no Vigente';
+  $('#regFields').hidden = !reg; $('#authBtn').textContent = reg ? 'Criar conta' : 'Entrar';
+  $('#authSwap').textContent = reg ? 'Já tem conta? Entre' : 'Ainda não tem conta? Crie grátis';
+  $('#aPass').autocomplete = reg ? 'new-password' : 'current-password';
+}
+$('#authSwap').onclick = (e) => { e.preventDefault(); mode = mode === 'login' ? 'register' : 'login'; renderAuth(); };
+$('#authForm').onsubmit = async (e) => {
+  e.preventDefault(); $('#authErr').textContent = '';
+  try {
+    const r = await api('POST', '/api/auth/' + (mode === 'register' ? 'register' : 'login'), { name: $('#aName').value, company: $('#aCo').value, email: $('#aEmail').value, password: $('#aPass').value });
+    token = r.token; user = r.user; try { localStorage.setItem('vg_token', token) } catch {}
+    await load(); if (pending) { const p = pending; pending = null; choosePlan(p); }
+  } catch (err) { $('#authErr').textContent = err.message; }
+};
+$('#outBtn').onclick = () => { token = user = null; try { localStorage.removeItem('vg_token') } catch {} if (DEMO) { demo.user = null; store.set(demo); } route(); };
+async function load() { list = await api('GET', '/api/contracts'); renderDash(); route(); }
+function renderDash() {
+  const plan = PLANS.find((p) => p.id === user.plan);
+  $('#hello').textContent = `Olá, ${user.name.split(' ')[0]}`;
+  $('#planLine').innerHTML = `Plano ${esc(plan.name)} · ${list.length} de ${{ starter: 10, pro: 200 }[plan.id] ?? 'ilimitados'} contratos ${plan.id !== 'business' ? '· <a href="#precos">fazer upgrade</a>' : ''}`;
+  const att = list.filter((c) => status(c).k === 'aviso'), over = list.filter((c) => status(c).k === 'vencido');
+  const auto = att.filter((c) => c.auto_renew).reduce((s, c) => s + Number(c.value || 0) * 12, 0);
+  $('#kpis').innerHTML = [[list.length, 'contratos ativos'], [att.length, 'na janela de aviso', att.length], [over.length, 'vencidos', over.length], [brl(auto).replace(',00', ''), 'por ano em renovações automáticas perto de acontecer', auto], [brl(list.reduce((s, c) => s + Number(c.value || 0), 0)).replace(',00', ''), 'em contratos por mês']]
+    .map(([v, l, a]) => `<div class="kpi ${a ? 'alert' : ''}"><b>${esc(v)}</b><span>${l}</span></div>`).join('');
+  ruler($('#appRuler'), list, 'Sua régua de prazos', true); renderTable();
+}
+function renderTable() {
+  const q = $('#q').value.toLowerCase(), f = $('#f').value;
+  const rows = list.filter((c) => (!q || (c.title + ' ' + (c.party || '')).toLowerCase().includes(q)) && (!f || (f === 'auto' ? c.auto_renew : status(c).k === f)));
+  $('#tb').innerHTML = rows.map((c) => { const s = status(c); return `<tr><td><b>${esc(c.title)}</b><br><span class="note">${esc(c.category)}</span></td><td>${esc(c.party)}</td><td style="white-space:nowrap">${esc(new Date(c.end_date + 'T00:00').toLocaleDateString('pt-BR'))}</td><td><span class="tag ${s.cls}">${esc(s.t)}</span>${c.auto_renew ? ' <span class="note">↻ renova</span>' : ''}</td><td class="num">${esc(brl(c.value))}</td><td><button class="ghost small" data-edit="${esc(c.id)}">Editar</button></td></tr>`; }).join('');
+  $('#empty').hidden = rows.length > 0;
+  $('#empty').textContent = list.length ? 'Nenhum contrato com esse filtro.' : 'Nenhum contrato aqui ainda. Adicione o primeiro e veja ele aparecer na régua.';
+}
+$('#q').oninput = renderTable; $('#f').onchange = renderTable;
+
+// ---------- Formulário ----------
+const F = { title: '#cTitle', party: '#cParty', category: '#cCat', end_date: '#cEnd', value: '#cVal', notice_days: '#cNotice', notes: '#cNotes' };
+function openDlg(c) {
+  editing = c || null; $('#cErr').textContent = ''; $('#dlgTitle').textContent = c ? 'Editar contrato' : 'Novo contrato'; $('#delBtn').hidden = !c;
+  for (const [k, s] of Object.entries(F)) $(s).value = c ? (c[k] ?? '') : k === 'notice_days' ? '30' : k === 'category' ? 'Fornecedor' : '';
+  $('#cAuto').checked = !!c?.auto_renew; $('#dlg').showModal(); $('#cTitle').focus();
+}
+$('#addBtn').onclick = () => openDlg(); $('#cancelBtn').onclick = () => $('#dlg').close();
+$('#cForm').onsubmit = async (e) => {
+  e.preventDefault(); const b = { auto_renew: $('#cAuto').checked ? 1 : 0 };
+  for (const [k, s] of Object.entries(F)) b[k] = $(s).value.trim();
+  b.value = Number(b.value) || 0; b.notice_days = Number(b.notice_days);
+  try { await api(editing ? 'PUT' : 'POST', '/api/contracts' + (editing ? '/' + editing.id : ''), b); $('#dlg').close(); await load(); toast(editing ? 'Contrato atualizado' : 'Contrato salvo'); }
+  catch (err) { $('#cErr').textContent = err.message; }
+};
+$('#delBtn').onclick = async () => {
+  if ($('#delBtn').dataset.sure !== '1') { $('#delBtn').dataset.sure = '1'; $('#delBtn').textContent = 'Confirmar exclusão'; return; }
+  await api('DELETE', '/api/contracts/' + editing.id); $('#delBtn').dataset.sure = ''; $('#delBtn').textContent = 'Excluir'; $('#dlg').close(); await load(); toast('Contrato excluído');
+};
+let tt; function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2600); }
+
+// ---------- Rotas ----------
+function route() {
+  const inApp = location.hash === '#app';
+  $('#site').hidden = inApp; $('#app').hidden = !inApp;
+  $('#authBox').hidden = !!user; $('#dash').hidden = !user; renderAuth();
+  $('#navApp').textContent = user ? 'Meu painel' : 'Entrar';
+  if (inApp) scrollTo(0, 0);
+}
+addEventListener('hashchange', route);
+renderPlans(); ruler($('#heroRuler'), SAMPLE, 'Exemplo: uma loja com 6 contratos', false);
+(async () => {
+  try { const r = await fetch('/api/health'); DEMO = !(r.ok && (await r.json()).ok); } catch { DEMO = true; }
+  $('#demoNote').hidden = !DEMO;
+  if (DEMO && demo.user) token = 'demo';
+  if (token) { try { user = await api('GET', '/api/me'); await load(); } catch { token = null; } }
+  route();
+})();
+}
+</script>
+</body>
+</html>
